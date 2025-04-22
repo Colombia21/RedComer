@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RedComer</title>
+
+  <link rel="stylesheet" href="stilo.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playwrite+AU+SA:wght@100..400&family=Playwrite+RO:wght@100..400&family=Special+Gothic&family=Winky+Rough:ital,wght@0,300..900;1,300..900&display=swap" rel="stylesheet" />
+</head>
+
+<body>
+  <header>
+    <div class="logo">
+      <a href="#"><img src="images/logo.png" alt="Logo de RedComer" title="Logo" /></a>
+      <h1>RedComer</h1>
+    </div>
+
+    <!-- Botón hamburguesa -->
+    <button class="menu-toggle" id="toggleBtn">
+      <div></div>
+      <div></div>
+      <div></div>
+    </button>
+
+    <!-- Menú de navegación -->
+    <nav id="navMenu">
+      <a href="#">Perfil</a>
+      <a href="#">Mis compras</a>
+      <a href="#">Carrito🛒</a>
+    </nav>
+  </header>
+  <script>
+    const toggleBtn = document.getElementById("toggleBtn");
+    const navMenu = document.getElementById("navMenu");
+  
+    toggleBtn.addEventListener("click", () => {
+      navMenu.classList.toggle("active");
+    });
+  
+    // Opcional: cerrar menú al hacer clic en un enlace
+    const navLinks = navMenu.querySelectorAll("a");
+    navLinks.forEach(link => {
+      link.addEventListener("click", () => {
+        navMenu.classList.remove("active");
+      });
+    });
+  </script>
+  </body>
+  </html>
+
+

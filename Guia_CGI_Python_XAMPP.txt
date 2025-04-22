@@ -1,0 +1,60 @@
+GUÍA PARA CONFIGURAR CGI CON PYTHON Y MYSQL EN XAMPP (WINDOWS)
+
+1. INSTALAR PYTHON
+- Instala Python desde: https://www.python.org/downloads/
+- Agrega Python al PATH durante la instalación.
+- Verifica en CMD:
+  python --version
+
+2. INSTALAR EL CONECTOR MYSQL
+- En CMD (como admin), ejecuta:
+  C:\Python312\python.exe -m pip install mysql-connector-python
+
+3. COPIAR PAQUETES MANUALMENTE (si no funciona el paso anterior)
+Desde:
+  C:\Users\zorga\AppData\Roaming\Python\Python312\site-packages\
+Copiar:
+  - mysql
+  - mysql_connector_python-9.3.0.dist-info
+Hacia:
+  C:\Python312\Lib\site-packages\
+
+4. UBICAR ARCHIVOS .PY EN CGI-BIN
+- Colocar login.py, registro.py, db.py, etc. en:
+  C:\xampp\cgi-bin\
+- Asegúrate de que todos empiecen con:
+  #!C:/Python312/python.exe
+
+5. ESTRUCTURA DE CARPETAS RECOMENDADA
+C:\xampp\
+├── cgi-bin\
+│   ├── login.py
+│   ├── registro.py
+│   └── db.py
+├── htdocs\
+│   └── redcomer\
+│       ├──imágenes(carpeta)
+│       ├── index.html
+│       └── registro.html, etc
+
+6. ACTIVAR CGI EN XAMPP
+- Abre: C:\xampp\apache\conf\httpd.conf
+- Buscar y descomentar:
+  LoadModule cgi_module modules/mod_cgi.so
+- Verificar que exista:
+  AddHandler cgi-script .cgi .py
+- En el bloque <Directory "C:/xampp/cgi-bin">, agregar o asegurar que tenga:
+  Options +ExecCGI
+  AddHandler cgi-script .py
+- Reiniciar Apache desde XAMPP
+
+7. VERIFICAR CGI FUNCIONANDO
+Crear archivo test.py en cgi-bin con:
+  #!C:/Python312/python.exe
+  print("Content-Type: text/html\n")
+  print("<html><body><h1>CGI funcionando bien</h1></body></html>")
+Ir a: http://localhost/cgi-bin/test.py
+
+8. PROBAR TU PROGRAMA
+Ir en el navegador a:
+  http://localhost/redcomer/index.html

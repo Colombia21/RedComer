@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Mensaje - RedComer</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: sans-serif;
+            background-color: #f1f1f1;
+        }
+        .mensaje {
+            padding: 20px 30px;
+            border-radius: 15px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            background: white;
+            text-align: center;
+        }
+        .mensaje h2 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        .icono {
+            font-size: 60px;
+        }
+        .exito {
+            color: green;
+        }
+        .error {
+            color: red;
+        }
+        a {
+            display: inline-block;
+            margin-top: 20px;
+            text-decoration: none;
+            color: #3498db;
+        }
+    </style>
+</head>
+<body>
+
+<div class="mensaje" id="mensaje">
+    <div class="icono" id="icono"></div>
+    <h2 id="titulo"></h2>
+    <p id="descripcion"></p>
+    <a href="index.html">Volver al inicio</a>
+</div>
+
+<script>
+    const params = new URLSearchParams(window.location.search);
+    const tipo = params.get("tipo");
+    const texto = params.get("texto");
+
+    const icono = document.getElementById("icono");
+    const titulo = document.getElementById("titulo");
+    const descripcion = document.getElementById("descripcion");
+
+    if (tipo === "exito") {
+        icono.textContent = "✅";
+        titulo.textContent = "¡Éxito!";
+        descripcion.textContent = texto;
+        icono.classList.add("exito");
+    } else {
+        icono.textContent = "❌";
+        titulo.textContent = "Error";
+        descripcion.textContent = texto;
+        icono.classList.add("error");
+    }
+</script>
+
+</body>
+</html>
