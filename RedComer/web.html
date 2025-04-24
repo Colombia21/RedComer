@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RedComer</title>
+
+  <link rel="stylesheet" href="stilo.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playwrite+AU+SA:wght@100..400&family=Playwrite+RO:wght@100..400&family=Special+Gothic&family=Winky+Rough:ital,wght@0,300..900;1,300..900&display=swap" rel="stylesheet" />
+</head>
+
+<body>
+  <header>
+    <div class="logo">
+      <a href="#"><img src="images/logo.png" alt="Logo de RedComer" title="Logo" /></a>
+      <h1>RedComer</h1>
+    </div>
+
+    
+    <button class="menu-toggle" id="toggleBtn">
+      <div></div>
+      <div></div>
+      <div></div>
+    </button>
+
+    
+    <nav id="navMenu">
+      <a href="#">Perfil</a>
+      <a href="#">Mis compras</a>
+      <a href="#">Carrito🛒</a>
+    </nav>
+  </header>
+  <main class="feed">
+    <section class="post">
+      <div class="perfil">
+        <a href="#"><img src="images/avatar.png" alt="Usuario" class="avatar"></a>
+        <span>@usuario_demo</span>
+      </div>
+  
+      <div class="contenido-post">
+        <img src="images/producto1.png" alt="Producto" class="producto-img" title="producto">
+        <p>¡Nuevo producto disponible! 🌟 Camiseta personalizada edición limitada. Disponible solo esta semana.</p>
+      </div>
+  
+      <div class="acciones">
+        <button class="like">❤️ Me gusta</button>
+        <button class="compartir">🔁 Compartir</button>
+        <button class="comprar">🛍️ Comprar</button>
+      </div>
+    </section>
+  </main>
+  <script>
+    const toggleBtn = document.getElementById("toggleBtn");
+    const navMenu = document.getElementById("navMenu");
+  
+    toggleBtn.addEventListener("click", () => {
+      navMenu.classList.toggle("active");
+    });
+  
+    
+    const navLinks = navMenu.querySelectorAll("a");
+    navLinks.forEach(link => {
+      link.addEventListener("click", () => {
+        navMenu.classList.remove("active");
+      });
+    });
+  </script>
+  </body>
+  </html>
+
+
