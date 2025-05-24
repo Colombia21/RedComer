@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RedComer</title>
+
+  <link rel="stylesheet" href="stilo.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playwrite+AU+SA:wght@100..400&family=Playwrite+RO:wght@100..400&family=Special+Gothic&family=Winky+Rough:ital,wght@0,300..900;1,300..900&display=swap" rel="stylesheet" />
+</head>
+<body>
+    <header>
+      <div class="logo">
+        <a href="/RedComer/web.html">
+          <img src="images/logo.png" alt="Logo de RedComer" title="Logo" />
+        </a>
+        <h1>RedComer</h1>
+      </div>
+
+      
+      <div class="search-wrapper">
+        <svg class="icon" aria-hidden="true" viewBox="0 0 24 24">
+          
+        </svg>
+        <input
+          id="user-search"
+          class="input"
+          type="search"
+          placeholder="Buscar usuarios…"
+          autocomplete="off"
+        />
+        <ul id="search-results" class="search-results"></ul>
+      </div>
+
+      <button class="menu-toggle" id="toggleBtn">
+        <div></div><div></div><div></div>
+      </button>
+
+      <nav id="navMenu">
+        <a href="#" id="btn-perfil">Perfil</a>
+        <a href="#" id="btn-carrito">Carrito 🛒</a>
+      </nav>
+    </header>
+
+  <main class="feed">
+    <section class="post publicar-form">
+      <h2 class="titulo-publicar">📝 Publicar un producto</h2>
+      <form id="form-publicar">
+        <div class="form-group">
+          <label for="descripcion">🗒️ Descripción del producto</label>
+          <textarea id="descripcion" name="descripcion" placeholder="Ej: Camiseta roja, talla M, poco uso..." rows="4" required></textarea>
+        </div>
+        <div class="form-group form-boton">
+          <button type="submit" class="btn-publicar"> 
+            <span class="emoji">📤</span>
+            <span class="texto">Publicar</span>
+          </button>
+        </div>
+      </form>
+    </section>
+
+    
+    <div id="feed-container">
+      <p>Cargando publicaciones...</p>
+    </div>
+  </main>
+
+  <script>
+    
+    const toggleBtn = document.getElementById("toggleBtn");
+    const navMenu = document.getElementById("navMenu");
+
+    toggleBtn.addEventListener("click", () => {
+      navMenu.classList.toggle("active");
+    });
+
+    navMenu.querySelectorAll("a").forEach(link => {
+      link.addEventListener("click", () => {
+        navMenu.classList.remove("active");
+      });
+    });
+
+   
+    document.getElementById('form-publicar').addEventListener('submit', function (e) {
+      e.preventDefault();
+      const descripcion = document.getElementById('descripcion').value;
+
+      fetch('/cgi-bin/publicar.py', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: 'descripcion=' + encodeURIComponent(descripcion)
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.status === 'ok') {
+          document.getElementById('descripcion').value = '';
+          cargarPublicaciones();
+        } else {
+          alert('❌ ' + data.mensaje);
+        }
+      })
+      .catch(error => {
+        alert('❌ Error al publicar: ' + error);
+      });
+    });
+    
+
+    function darLike(publicacion_id, boton) {
+      fetch('/cgi-bin/like.py', {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: 'publicacion_id=' + encodeURIComponent(publicacion_id)
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.status === 'ok') {
+          let likesActuales = parseInt(boton.textContent.replace("❤️", "").trim());
+
+          
+          if (data.accion === 'agregar') {
+            boton.innerHTML = `❤️ ${likesActuales + 1}`;
+            boton.classList.add('liked'); 
+          } else if (data.accion === 'quitar') {
+            boton.innerHTML = `❤️ ${likesActuales - 1}`;
+            boton.classList.remove('liked'); 
+          }
+        } else {
+          alert("⚠️ " + data.mensaje);
+        }
+      })
+      .catch(error => {
+        alert("❌ Error al dar like: " + error);
+      });
+    }
+    function toggleCarrito(producto_id, yaEsta) {
+      if (yaEsta) {
+        if (!confirm("¿Estás seguro de eliminar este producto del carrito?")) return;
+      }
+
+      fetch('/cgi-bin/comprar.py', {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: 'producto_id=' + encodeURIComponent(producto_id)
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.status === 'ok') {
+          alert(data.mensaje);
+          mostrarCarrito(); 
+        } else {
+          alert("⚠️ " + data.mensaje);
+        }
+      })
+      .catch(error => {
+        alert("❌ Error al modificar el carrito: " + error);
+      });
+    }
+    function debounce(fn, delay = 300) {
+        let timeoutId;
+        return (...args) => {
+          clearTimeout(timeoutId);
+          timeoutId = setTimeout(() => fn.apply(this, args), delay);
+        };
+      }
+
+      document.addEventListener("DOMContentLoaded", () => {
+        const input = document.getElementById("user-search");
+        const results = document.getElementById("search-results");
+
+        
+        function renderSuggestions(list) {
+          results.innerHTML = "";
+          if (!list.length) {
+            results.style.display = "none";
+            return;
+          }
+          list.forEach(name => {
+            const li = document.createElement("li");
+            li.textContent = name;
+            li.addEventListener("click", () => {
+              input.value = name;
+              results.style.display = "none";
+              
+            });
+            results.appendChild(li);
+          });
+          results.style.display = "block";
+        }
+
+        
+        async function buscarUsuarios(q) {
+          if (!q) {
+            renderSuggestions([]);
+            return;
+          }
+          try {
+            const resp = await fetch(`/cgi-bin/search_users.py?q=${encodeURIComponent(q)}`, {
+              credentials: 'include'
+            });
+            const data = await resp.json();
+            if (data.status === "ok") {
+              renderSuggestions(data.usuarios);
+            }
+          } catch (err) {
+            console.error("Error buscando usuarios:", err);
+          }
+        }
+
+        
+        input.addEventListener("input", debounce(e => {
+          buscarUsuarios(e.target.value.trim());
+        }, 300));
+
+        
+        document.addEventListener("click", e => {
+          if (!input.contains(e.target) && !results.contains(e.target)) {
+            results.style.display = "none";
+          }
+        });
+      });
+    function comprarProducto(producto_id, boton) {
+      console.log("Intentando comprar producto con ID:", producto_id);
+      fetch('/cgi-bin/comprar.py', {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: 'producto_id=' + encodeURIComponent(producto_id)
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.status === 'ok') {
+          alert("✅ Producto añadido al carrito");
+          
+          boton.disabled = true;
+          boton.style.opacity = 0.6;
+          boton.textContent = '✔️ Añadido';
+        } else {
+          alert("⚠️ " + data.mensaje);
+        }
+      })
+      .catch(error => {
+        alert("❌ Error al comprar: " + error);
+      });
+    }
+    
+    function generar_html_estadisticas(data) {
+      const { usuario, total_likes, total_carrito, estadisticas } = data;
+      const main = document.getElementById('feed-container');
+      main.innerHTML = '';
+
+     
+      document.querySelectorAll('section.post.publicar-form').forEach(s => s.style.display = 'none');
+      const formPublicar = document.getElementById('form-publicar');
+      const feed = document.getElementById('feed');
+      if (formPublicar) formPublicar.style.display = 'none';
+      if (feed) feed.style.display = 'none';
+
+      
+      const titulo = document.createElement('h2');
+      titulo.textContent = `Perfil de ${usuario}`;
+      titulo.style.textAlign = 'center';
+      titulo.style.margin = '20px 0';
+      titulo.style.fontSize = '24px';
+      titulo.style.fontWeight = 'bold';
+      titulo.style.color = '#298fd8';
+      main.appendChild(titulo);
+
+      
+      if (!estadisticas || estadisticas.length === 0) {
+        const mensaje = document.createElement('p');
+        mensaje.textContent = 'No hay publicaciones con estadísticas.';
+        mensaje.style.textAlign = 'center';
+        main.appendChild(mensaje);
+        return;
+      }
+
+      const container = document.createElement('div');
+      container.className = 'stats-container';
+
+      estadisticas.forEach(pub => {
+        const { descripcion, likes, añadidos } = pub;
+
+        const porcentajeLikes = total_likes ? Math.round((likes / total_likes) * 100) : 0;
+        const porcentajeAñadidos = total_carrito ? Math.round((añadidos / total_carrito) * 100) : 0;
+
+        const card = document.createElement('div');
+        card.className = 'estadisticas-card';
+
+        card.innerHTML = `
+          <div class="skill-box">
+            <span class="title">Likes (${likes} de ${total_likes})</span>
+            <div class="skill-bar">
+              <span class="skill-per" style="width:${porcentajeLikes}%">
+                <span class="tooltip">${porcentajeLikes}%</span>
+              </span>
+            </div>
+          </div>
+
+          <div class="skill-box">
+            <span class="title">Añadidos (${añadidos} de ${total_carrito})</span>
+            <div class="skill-bar">
+              <span class="skill-per" style="width:${porcentajeAñadidos}%">
+                <span class="tooltip">${porcentajeAñadidos}%</span>
+              </span>
+            </div>
+          </div>
+
+          <div class="skill-box">
+            <span class="title">Descripción</span>
+            <div class="heading">${descripcion || 'Sin descripción'}</div>
+          </div>
+        `;
+
+        container.appendChild(card);
+      });
+
+      main.appendChild(container);
+    }
+    
+    async function mostrarPerfil() {
+      try {
+        const resp = await fetch('/cgi-bin/perfil.py', { credentials: 'include' });
+        const text = await resp.text();
+        const data = JSON.parse(text);
+
+        if (data.status === 'ok') {
+          
+          generar_html_estadisticas(data);
+        } else {
+          alert(data.mensaje || 'Error al cargar perfil');
+          console.warn(data.debug || []);
+        }
+      } catch (err) {
+        console.error('Error al cargar perfil:', err);
+        alert('Error al conectar con el servidor.');
+      }
+    }
+
+    
+    const btnPerfil = document.getElementById('btn-perfil');
+    if (btnPerfil) {
+      btnPerfil.addEventListener('click', e => {
+        e.preventDefault();
+        mostrarPerfil();
+      });
+    }
+    
+    async function mostrarCarrito() {
+      const formPublicar = document.getElementById('form-publicar');
+      const feed = document.getElementById('feed');
+      const seccionesPublicar = document.querySelectorAll('section.post.publicar-form');
+      seccionesPublicar.forEach(seccion => {
+      seccion.style.display = 'none'; });
+      if (formPublicar) formPublicar.style.display = 'none';
+      if (feed) feed.style.display = 'none';
+    
+      if (formPublicar) formPublicar.style.display = 'none';
+      if (feed) feed.style.display = 'none';
+
+      try {
+        const resp = await fetch('/cgi-bin/carrito.py', { credentials: 'include' });
+        console.log('HTTP', resp.status, resp.headers.get('Content-Type'));
+
+        const text = await resp.text();
+        console.log('RESPUESTA CRUDA:', text);
+
+        let data;
+        try {
+          data = JSON.parse(text);
+        } catch {
+          alert('Respuesta no es JSON válido. Revisa consola.');
+          return;
+        }
+
+        const main = document.getElementById('feed-container');
+        main.innerHTML = '';
+
+        if (data.status !== 'ok') {
+          alert(data.mensaje || 'Error al cargar el carrito.');
+          return;
+        }
+
+        if (!data.publicaciones.length) {
+          main.innerHTML = '<p style="text-align:center;">No hay productos en el carrito.</p>';
+          return;
+        }
+
+        const container = document.createElement('div');
+        container.className = 'main-content';
+        container.style.display = 'flex';
+        container.style.flexDirection = 'column';
+        container.style.gap = '20px';
+
+        data.publicaciones.forEach(pub => {
+          const card = document.createElement('div');
+          card.className = 'card';
+
+          const descripcion = pub.descripcion || 'Sin descripción';
+          const fecha = pub.fecha ? new Date(pub.fecha).toLocaleDateString() : 'Sin fecha';
+          const usuario = pub.usuario || 'Usuario desconocido';
+
+        card.innerHTML = `
+          <div class="card-horizontal">
+            <div class="card-image" style="background-image: url('${pub.imagen || "images/ejemplo.jpg"}');"></div>
+            <div class="card-content">
+              <div class="category">${usuario}</div>
+              <div class="heading">${descripcion}</div>
+              <div class="author">Agregado el: ${fecha}</div>
+            </div>
+          </div>
+        `;
+          container.appendChild(card);
+        });
+
+        main.appendChild(container);
+
+        if (!document.querySelector('.btn-comprar')) {
+          const btn = document.createElement('button');
+          btn.className = 'btn-comprar';
+          btn.textContent = '🛒 Comprar';
+          btn.onclick = mostrarMensaje;
+          document.body.appendChild(btn);
+        }
+
+        if (!document.getElementById('mensaje')) {
+          const msg = document.createElement('div');
+          msg.id = 'mensaje';
+          msg.className = 'mensaje-oculto';
+          msg.textContent = '✅ Compra realizada';
+          document.body.appendChild(msg);
+        }
+
+      } catch (err) {
+        console.error('FETCH ERROR:', err);
+        alert('Ocurrió un error al cargar el carrito.');
+      }
+    }
+
+    function mostrarMensaje() {
+      const m = document.getElementById('mensaje');
+      if (m) {
+        m.style.display = 'block';
+        setTimeout(() => (m.style.display = 'none'), 2000);
+      }
+    }
+
+    document.getElementById('btn-carrito')?.addEventListener('click', e => {
+      e.preventDefault();
+      mostrarCarrito();
+    });
+    
+    function obtenerUsuarioID() {
+      const cookies = document.cookie.split("; ");
+      for (let i = 0; i < cookies.length; i++) {
+        const [nombre, valor] = cookies[i].split("=");
+        if (nombre === "usuario_id") {
+          return valor;
+        }
+      }
+      return null;
+    }
+
+    function eliminarPublicacion(id, boton) {
+      if (!confirm("¿Estás seguro de que deseas eliminar esta publicación?")) {
+        return;
+      }
+
+      fetch('/cgi-bin/eliminar.py', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: 'publicacion_id=' + encodeURIComponent(id)
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.status === 'ok') {
+          alert("✅ Publicación eliminada");
+          cargarPublicaciones();
+        } else {
+          alert("❌ " + data.mensaje);
+        }
+      })
+      .catch(error => {
+        alert("❌ Error al eliminar: " + error);
+      });
+    }
+
+    function cargarPublicaciones() {
+      fetch('/RedComer/feed.php')
+        .then(response => response.json())
+        .then(data => {
+          const container = document.getElementById('feed-container');
+          container.innerHTML = '';
+
+          data.forEach(post => {
+            const postElement = document.createElement('div');
+            postElement.className = 'card';
+
+            
+            const imagen = document.createElement('div');
+            imagen.className = 'card-image';
+
+            if (post.imagen && post.imagen !== '') {
+              const img = document.createElement('img');
+              img.src = `/RedComer/recursos/${post.imagen}`;
+              img.alt = 'Imagen del producto';
+              imagen.appendChild(img);
+            } else {
+              imagen.textContent = 'Imagen de prueba, estas imágenes son obtenidas de la carpeta recursos';
+            }
+
+            
+            const category = document.createElement('div');
+            category.className = 'category';
+            category.textContent = post.usuario;
+
+            
+            const heading = document.createElement('div');
+            heading.className = 'heading';
+            heading.innerHTML = `
+              <p>${post.descripcion}</p>
+              <div class="date">🗓️ Fecha · ${post.fecha}</div>
+            `;
+
+            
+            const buttons = document.createElement('div');
+            buttons.className = 'buttons-container';
+
+            
+           const btnDelete = document.createElement('button');
+            btnDelete.className = 'btn btn-delete';
+            btnDelete.title = 'Eliminar';
+            btnDelete.textContent = '🗑️';
+
+            const usuarioActual = obtenerUsuarioID();
+            if (post.usuario_id == usuarioActual) {
+              btnDelete.addEventListener('click', () => {
+                eliminarPublicacion(post.id, btnDelete);
+              });
+            } else {
+              btnDelete.disabled = true;
+              btnDelete.style.opacity = 0.4;
+            }
+
+            
+            const btnLike = document.createElement('button');
+            btnLike.className = 'btn btn-like';
+            btnLike.title = 'Me gusta';
+            btnLike.innerHTML = `❤️ ${post.total_likes}`;
+            btnLike.addEventListener('click', () => {
+              darLike(post.id, btnLike); 
+            });
+
+            
+            const btnBuy = document.createElement('button');
+            btnBuy.className = 'btn btn-buy';
+            btnBuy.title = 'Comprar';
+            btnBuy.textContent = '🛒';
+
+            if (parseInt(post.usuario_id) !== parseInt(obtenerUsuarioID())) {
+              console.log("Agregando evento click a botón de compra para ID:", post.id);
+              
+              btnBuy.addEventListener('click', () => {
+                comprarProducto(post.id, btnBuy);  
+              });
+            } else {
+              
+              btnBuy.disabled = true;
+              btnBuy.style.opacity = 0.4;
+            }
+
+            
+            buttons.appendChild(btnDelete);
+            buttons.appendChild(btnLike);
+            buttons.appendChild(btnBuy);
+
+            
+            postElement.appendChild(imagen);
+            postElement.appendChild(category);
+            postElement.appendChild(heading);
+            postElement.appendChild(buttons);
+
+            
+            container.appendChild(postElement);
+          });
+        })
+        .catch(error => {
+          console.error("Error al cargar publicaciones:", error);
+        });
+    }
+
+
+    
+    cargarPublicaciones();
+  </script>
+</body>
+</html>

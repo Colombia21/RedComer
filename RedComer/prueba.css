@@ -1,0 +1,280 @@
+body{
+    margin: 0;
+    font-family: "Playwrite AU SA", "Winky Rough", "Special Gothic", "Playwrite RO", sans-serif;
+  }
+  
+  /* Fuentes personalizadas */
+  .special-gothic-regular {
+    font-family: "Special Gothic", sans-serif;
+    font-weight: 200;
+    font-style: normal;
+  }
+  .playwrite-au-sa {
+    font-family: "Playwrite AU SA", cursive;
+    font-weight: 200;
+    font-style: normal;
+  }
+  .winky-rough {
+    font-family: "Winky Rough", sans-serif;
+    font-weight: 200;
+    font-style: normal;
+  }
+  .playwrite-ro {
+    font-family: "Playwrite RO", cursive;
+    font-weight: 200;
+    font-style: normal;
+  }
+  
+  /* HEADER GENERAL */
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    min-height: 60px;
+    background-image: radial-gradient(circle at 50% -20.71%, #dff0db 0, #dbf0dd 6.25%, #d8f1e0 12.5%, #d5f1e3 18.75%, #d3f2e6 25%, #d1f2e9 31.25%, #cff2ec 37.5%, #cef2ef 43.75%, #cdf2f2 50%, #cdf2f5 56.25%, #cdf1f8 62.5%, #cef1fa 68.75%, #cff0fc 75%, #d1f0fe 81.25%, #d3efff 87.5%, #d6eeff 93.75%, #d9edff 100%);
+    padding: 10px 20px;
+    position: relative;
+  }
+  
+  /* LOGO */
+  .logo {
+    display: flex;
+    align-items: center;
+  }
+  .logo img {
+    height: 50px;
+    margin-right: 10px;
+  }
+  
+  /* NAV LINKS */
+  nav {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+  }
+  nav a {
+    text-decoration: none;
+    color: black;
+    font-weight: bold;
+  }
+  nav a:hover {
+    text-decoration: underline;
+    color: rgb(24, 18, 1);
+  }
+  
+  
+ 
+.menu-toggle {
+    display: none;
+    flex-direction: column;
+    width: 2rem;
+    height: 2rem;
+    justify-content: center;
+    gap: 0.4rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+  }
+  
+  .menu-toggle div {
+    background: black;
+    height: 2px;
+    width: 100%;
+    border-radius: 2px;
+    transition: all 0.5s ease;
+  }
+  
+  
+  @keyframes fadeOutIn {
+    0% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+  
+  
+  .menu-toggle:hover div {
+    animation: fadeOutIn 2s ease;
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 595px) {
+    nav {
+        display: none;
+        flex-direction: column;
+        width: 100%;
+        background-image: white;
+        position: absolute;
+        top: 125px;
+        left: 0;
+        padding: 10px 0;
+        z-index: 1;
+    }
+  
+    nav.active {
+      display: flex;
+    }
+  
+    .menu-toggle {
+      display: flex;
+    }
+    
+    
+  
+    header {
+      flex-direction: row;
+      justify-content: space-between;
+    }
+  }
+/* 🔍 Barra de búsqueda */
+.group {
+  display: flex;
+  align-items: center;
+  background: white;
+  border-radius: 12px;
+  padding: 5px 10px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  margin-right: 20px;
+  transition: all 0.3s ease;
+}
+/* Input de búsqueda */
+.group .input {
+  border: none;
+  outline: none;
+  font-size: 14px;
+  font-family: "Playwrite AU SA", sans-serif;
+}
+
+/* 🔄 Responsive: ocultar barra a <= 595px */
+@media (max-width: 595px) {
+  .group {
+    display: none;
+  }
+}
+
+
+/* Tarjetas */ 
+.card {
+  display: flex;
+  align-items: center;
+  width: 400px;
+  background: white;
+  padding: 0.4em;
+  border-radius: 6px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  
+}
+
+.card-image {
+  background-color: rgba(0, 0, 0, 0.1);
+  width: 200px;
+  height: 150px;
+  border-radius: 6px;
+  flex-shrink: 0;
+  margin-right: 10px;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.card-image:hover {
+  transform: scale(0.98);
+  transition: transform 0.3s ease;
+}
+
+.card-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;   /* Centrado vertical */
+  align-items: center;       /* Centrado horizontal */
+  height: 100%;
+}
+
+.category {
+  text-transform: uppercase;
+  font-size: 0.7em;
+  font-weight: 600;
+  color: rgb(63, 121, 230);
+  padding-bottom: 5px;
+  text-align: left; /* Align text to the left */
+}
+
+.category:hover {
+  cursor: pointer;
+}
+
+.heading {
+  font-weight: 600;
+  color: rgb(88, 87, 87);
+  margin-bottom: 10px;
+  text-align: left; /* Align text to the left */
+}
+
+.heading:hover {
+  cursor: pointer;
+}
+
+.author {
+  color: gray;
+  font-weight: 400;
+  font-size: 11px;
+  text-align: left; /* Align text to the left */
+}
+
+.name {
+  font-weight: 600;
+}
+
+.name:hover {
+  cursor: pointer;
+}
+.main-content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 80vh;
+}
+
+.btn-comprar {
+  position: fixed;
+  bottom: 1cm;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 10px 20px;
+  background-color: #00c853;
+  color: white;
+  font-size: 1rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  transition: background-color 0.3s ease;
+  z-index: 1000;
+}
+
+.btn-comprar:hover {
+  background-color: #00b044;
+}
+
+#mensaje {
+  position: fixed;
+  bottom: 2.5cm;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #d4edda;
+  color: #155724;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-weight: bold;
+  display: none;
+  z-index: 1000;
+}
+
+.mensaje-oculto {
+  display: none;
+}

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Carrito - RedComer</title>
+  <link rel="stylesheet" href="stilo.css">
+</head>
+<body>
+  <div class="main-content" id="carrito-container">
+    <p>Cargando carrito...</p>
+  </div>
+
+  <button class="btn-comprar" onclick="mostrarMensaje()">🛒 Comprar</button>
+  <div id="mensaje" class="mensaje-oculto">✅ Compra realizada</div>
+
+  <script>
+    function mostrarMensaje() {
+      const mensaje = document.getElementById("mensaje");
+      mensaje.style.display = "block";
+      setTimeout(() => mensaje.style.display = "none", 2000);
+    }
+
+    function cargarCarrito() {
+      fetch("/cgi-bin/ver_carrito.py")
+        .then(res => res.json())
+        .then(data => {
+          const container = document.getElementById("carrito-container");
+          container.innerHTML = "";
+          if (data.length === 0) {
+            container.textContent = "🛒 Tu carrito está vacío.";
+            return;
+          }
+
+          data.forEach(post => {
+            const card = document.createElement("div");
+            card.className = "card";
+
+            const imagen = document.createElement("div");
+            imagen.className = "card-image";
+            imagen.style.backgroundImage = `url('/RedComer/recursos/${post.imagen}')`;
+
+            const content = document.createElement("div");
+            content.className = "card-content";
+
+            const category = document.createElement("div");
+            category.className = "category";
+            category.textContent = post.usuario;
+
+            const heading = document.createElement("div");
+            heading.className = "heading";
+            heading.innerHTML = `
+              ${post.descripcion}
+              <div class="author">By <span class="name">${post.usuario}</span> ${post.fecha}</div>
+            `;
+
+            content.appendChild(category);
+            content.appendChild(heading);
+            card.appendChild(imagen);
+            card.appendChild(content);
+            container.appendChild(card);
+          });
+        });
+    }
+
+    cargarCarrito();
+  </script>
+</body>
+</html>

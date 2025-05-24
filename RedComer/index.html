@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RedComer</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+   <div class="formulario"> 
+        <h1>Inicio de sesion</h1>
+        <form method="post" action="/cgi-bin/login.py">
+          <div class="username">
+            <input type="text" name="usuario" required>
+            <label>Nombre de usuario</label>
+            <span></span>
+          </div>
+          <div class="username">
+            <input type="password" name="password" required>
+            <label>Contraseña</label>
+            <span></span>
+          </div>
+          <div class="recordar">¿Olvidó su contraseña?</div>
+          <input type="submit" value="Iniciar">
+          <div class="registrarse">
+            Quiero hacer el <a href="registro.html">registro</a>
+          </div>
+        </form>
+   </div> 
+</body>
+</html>
